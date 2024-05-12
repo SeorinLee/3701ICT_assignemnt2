@@ -1,4 +1,4 @@
-//Category.js
+// 3701/assignmnet2/src/screens/Category.js
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     color: '#2a3738',
   },
   category: {
-    height: '19%',
+    height: '25%',
     backgroundColor: '#DED0B6',
     width: '100%',
     paddingHorizontal: 20,

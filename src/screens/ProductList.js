@@ -1,4 +1,4 @@
-//ProductList.js
+// 3701/assignmnet2/src/screens/ProductList.js
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 

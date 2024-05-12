@@ -1,12 +1,15 @@
-//ProductDetail.js
+// ProductDetail.js
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
+import { addToCart as addToCartAction } from '../store/actions';
 
 const ProductDetailScreen = ({ route, navigation }) => {
   const { productId } = route.params;
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchProductDetail();
@@ -25,9 +28,8 @@ const ProductDetailScreen = ({ route, navigation }) => {
   };
 
   const addToCart = () => {
-    // TODO: Implement add to cart functionality
-    // This functionality will be implemented in a future milestone
-    console.log('Add to cart button clicked');
+    dispatch(addToCartAction(product)); // Redux 액션 디스패치
+    console.log('Product added to cart:', product);
   };
 
   return (
@@ -53,7 +55,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity style={styles.cartButton} onPress={addToCart}>
                 <View style={styles.buttonContent}>
-                  <Ionicons name="cart-outline" size={25} color="white" />
+                  <Ionicons name="cart" size={25} color="white" />
                   <Text style={styles.buttonText}>Add to Cart</Text>
                 </View>
               </TouchableOpacity>
