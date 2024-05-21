@@ -6,21 +6,28 @@ import { Provider } from 'react-redux';
 import store from './src/store/store';
 import Splash from './src/screens/Splash';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator';
+import UserProfileStack from './src/stack/UserProfileStack'; // UserProfileStack import 추가
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
+const App = () => {
   return (
     <Provider store={store}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Splash" component={Splash} />
-          <Stack.Screen name="Category" component={BottomTabNavigator} />
+          <Stack.Screen name="Main" component={BottomTabNavigator} />
         </Stack.Navigator>
       </NavigationContainer>
     </Provider>
   );
-}
+};
+
+export default App;
+
+
+
+
 
 /*import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';

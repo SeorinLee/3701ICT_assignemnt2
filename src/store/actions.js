@@ -1,4 +1,13 @@
 // src/store/actions.js
+export const signIn = (user) => ({
+  type: 'SIGN_IN',
+  payload: { user },
+});
+
+export const signOut = () => ({
+  type: 'SIGN_OUT',
+});
+
 export const addToCart = (product) => ({
   type: 'ADD_TO_CART',
   payload: product

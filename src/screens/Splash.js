@@ -1,27 +1,27 @@
-// 3701/assignment2/src/screens/Splash.js
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, ImageBackground, View, Text, Image } from 'react-native';
 
 const Splash = ({ navigation }) => {
-  const [blink, setBlink] = useState(true); 
+  const [blink, setBlink] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setBlink((prevBlink) => !prevBlink); 
-    }, 700); 
+      setBlink((prevBlink) => !prevBlink);
+    }, 700);
 
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (navigation) { 
-        navigation.replace('Category'); 
+      if (navigation) {
+        // Main stack의 BottomTabNavigator -> UserProfileStack -> SignIn 화면으로 이동
+        navigation.replace('Main', { screen: 'UserProfile', params: { screen: 'SignIn' } });
       }
-    }, 3000); 
+    }, 3000);
 
     return () => clearTimeout(timer);
-  }, [navigation]); 
+  }, [navigation]);
 
   return (
     <ImageBackground
@@ -54,15 +54,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#000000', 
+    color: '#000000',
   },
   subtitle: {
     fontSize: 16,
-    color: '#000000', 
+    color: '#000000',
     marginTop: 10,
   },
   blink: {
-    opacity: 0, 
+    opacity: 0,
   },
 });
 

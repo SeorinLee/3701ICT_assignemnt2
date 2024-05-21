@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { incrementQuantity, decrementQuantity, removeFromCart } from '../store/actions';
 
 const ShoppingCartScreen = () => {
-  const cartItems = useSelector(state => state.cart.items || []);
+  const cartItems = useSelector(state => state.user.cartItems || []);
 
   const dispatch = useDispatch();
 
@@ -59,19 +59,19 @@ const ShoppingCartScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, 
+    flex: 1,
     padding: 20
   },
   itemContainer: {
-    flexDirection: 'row', 
-    alignItems: 'center', 
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
-    borderBottomWidth: 1, 
+    borderBottomWidth: 1,
     borderBottomColor: '#ccc'
   },
   itemText: {
     flex: 1,
-    fontSize: 10,
+    fontSize: 16,
     marginHorizontal: 10,
   },
   image: {
@@ -79,25 +79,25 @@ const styles = StyleSheet.create({
     height: 50,
   },
   buttonContainer: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     alignItems: 'center'
   },
   button: {
-    marginHorizontal: 10, 
-    padding: 10, 
-    backgroundColor: '#ddd', 
+    marginHorizontal: 10,
+    padding: 10,
+    backgroundColor: '#ddd',
     borderRadius: 5
   },
   quantity: {
     fontSize: 16
   },
   total: {
-    fontSize: 18, 
-    fontWeight: 'bold', 
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 10
   },
   emptyCart: {
-    fontSize: 18, 
+    fontSize: 18,
     fontStyle: 'italic'
   }
 });
