@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { signIn } from '../api/api';
-import { useDispatch } from 'react-redux';
-import { signIn as signInAction } from '../store/actions';
-import { useRoute, useNavigation } from '@react-navigation/native';
 
-const SignInScreen = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
+const SignInScreen = ({ route, navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const dispatch = useDispatch();
 
+  // SignUp에서 넘어온 데이터를 설정
   useEffect(() => {
     if (route.params) {
-      setEmail(route.params.email || '');
-      setPassword(route.params.password || '');
+      setEmail(route.params.email);
+      setPassword(route.params.password);
     }
   }, [route.params]);
 
@@ -26,8 +21,7 @@ const SignInScreen = () => {
     }
     const result = await signIn(email, password);
     if (result.status === 'OK') {
-      dispatch(signInAction({ name: result.name, email: result.email }));
-      navigation.replace('UserProfile', {
+      navigation.navigate('UserProfile', {
         token: result.token,
         user: {
           name: result.name,
@@ -46,9 +40,7 @@ const SignInScreen = () => {
       <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
       <Button title="Sign In" onPress={handleSignIn} />
       <Button title="Clear" onPress={() => { setEmail(''); setPassword(''); }} />
-      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={styles.linkText}>Don't have an account? Sign up</Text>
-      </TouchableOpacity>
+      <Text onPress={() => navigation.navigate('SignUp')}>Don't have an account? Sign up</Text>
     </View>
   );
 };
@@ -59,10 +51,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-  },
-  linkText: {
-    color: 'blue',
-    marginTop: 20,
   },
 });
 

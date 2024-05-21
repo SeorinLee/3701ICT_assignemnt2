@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { signUp } from '../api/api';
-import { useNavigation } from '@react-navigation/native';
 
-const SignUpScreen = () => {
-  const navigation = useNavigation();
+const SignUpScreen = ({ navigation }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,7 +14,8 @@ const SignUpScreen = () => {
     }
     const result = await signUp(name, email, password);
     if (result.status === 'OK') {
-      navigation.replace('SignIn', { email, password });
+      // Sign up 성공 후 입력 정보와 함께 SignIn 페이지로 이동
+      navigation.navigate('SignIn', { email, password });
     } else {
       Alert.alert('Signup Failed', result.message);
     }
