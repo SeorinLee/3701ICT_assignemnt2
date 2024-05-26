@@ -1,8 +1,9 @@
+//3701/assignmnet2/src/screens/SignUp.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { signUp } from '../api/api';
 
-const SignUpScreen = ({ navigation }) => {
+const SignUp = ({ navigation }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -12,23 +13,37 @@ const SignUpScreen = ({ navigation }) => {
       Alert.alert('Validation Error', 'All fields are required.');
       return;
     }
-    const result = await signUp(name, email, password);
-    if (result.status === 'OK') {
-      // Sign up 성공 후 입력 정보와 함께 SignIn 페이지로 이동
-      navigation.navigate('SignIn', { email, password });
-    } else {
-      Alert.alert('Signup Failed', result.message);
+
+    try {
+      const result = await signUp(name, email, password);
+      if (result.status === 'OK') {
+        navigation.navigate('MainUserProfile', {
+          email: result.email,
+          name: result.name,
+          token: result.token // 서버로부터 받은 토큰
+        });
+      } else {
+        Alert.alert('Signup Failed', result.message || 'An unknown error occurred');
+      }
+    } catch (error) {
+      Alert.alert('Network Error', 'Unable to connect to the server. Please try again later.');
     }
+  };
+
+  const clearFields = () => {
+    setName('');
+    setEmail('');
+    setPassword('');
   };
 
   return (
     <View style={styles.container}>
       <Text>Sign up a new user</Text>
-      <TextInput placeholder="Name" value={name} onChangeText={setName} />
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
-      <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+      <TextInput placeholder="Name" value={name} onChangeText={setName} style={styles.input} />
+      <TextInput placeholder="Email" value={email} onChangeText={setEmail} autoCapitalize="none" style={styles.input} />
+      <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
       <Button title="Sign Up" onPress={handleSignUp} />
-      <Button title="Clear" onPress={() => { setName(''); setEmail(''); setPassword(''); }} />
+      <Button title="Clear" onPress={clearFields} />
       <Text onPress={() => navigation.navigate('SignIn')}>Switch to: sign in</Text>
     </View>
   );
@@ -39,7 +54,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
+  },
+  input: {
+    width: '80%',
+    padding: 10,
+    margin: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
   },
 });
 
-export default SignUpScreen;
+export default SignUp;

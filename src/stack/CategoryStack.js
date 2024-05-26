@@ -7,9 +7,6 @@ import ProductDetail from '../screens/ProductDetail';
 import CategoryHeader from '../Header/CategoryHeader';
 import ProductListHeader from '../Header/ProductListHeader';
 import ProductDetailHeader from '../Header/ProductDetailHeader';
-import UserProfile from '../screens/UserProfile';
-import SignIn from '../screens/SignIn';
-
 
 const Stack = createNativeStackNavigator();
 
@@ -30,14 +27,6 @@ function CategoryStack() {
         name="ProductDetail"
         component={ProductDetail}
         options={{ header: ProductDetailHeader }}
-      />
-      <Stack.Screen
-        name="UserProfile"
-        component={UserProfile}
-      />
-      <Stack.Screen
-        name="SignIn"
-        component={SignIn}
       />
     </Stack.Navigator>
   );

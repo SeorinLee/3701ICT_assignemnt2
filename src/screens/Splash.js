@@ -1,4 +1,5 @@
 //3701/assignmnet2/src/screens/Splash.js
+
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, ImageBackground, View, Text, Image } from 'react-native';
 

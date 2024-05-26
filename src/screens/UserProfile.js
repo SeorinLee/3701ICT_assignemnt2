@@ -1,44 +1,49 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { updateUser } from '../api/api';
 
 const UserProfile = ({ route, navigation }) => {
   const token = route.params?.token;
-  const [user, setUser] = useState(route.params?.user);
+  const [user, setUser] = useState(route.params?.user || { name: '', email: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(user?.name);
   const [newPassword, setNewPassword] = useState('');
 
-  // 토큰이 유효하지 않을 때 로그인 화면으로 자동 리디렉션 처리
   useEffect(() => {
     if (!token) {
       navigation.navigate('SignIn');
     }
   }, [token, navigation]);
 
-  if (!token) {
-    // 토큰이 없으면 로딩 중임을 표시하고 useEffect에 의해 페이지가 전환됩니다.
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+  const handleUpdate = async () => {
+    if (!newName || !newPassword) {
+      Alert.alert('Error', 'Name and password cannot be empty.');
+      return;
+    }
 
-  const handleUpdate = () => {
-    // 업데이트된 사용자 정보를 저장
-    setUser({
-      ...user,
-      name: newName,
-      password: newPassword, // 실제로 비밀번호를 업데이트 하려면 서버와의 통신이 필요합니다.
-    });
-    setIsEditing(false);
+    try {
+      const response = await updateUser(newName, newPassword, token);
+      if (response.status === 'OK') {
+        Alert.alert('Success', 'Your profile has been updated successfully.');
+        setUser({ ...user, name: newName, password: newPassword });
+        setIsEditing(false);
+      } else {
+        Alert.alert('Update Failed', response.message || 'Failed to update profile.');
+      }
+    } catch (error) {
+      console.error('Update Profile Error:', error); // 에러 로그 추가
+      Alert.alert('Network Error', 'Unable to connect to the server. Please try again later.');
+    }
   };
 
   const handleCancel = () => {
-    // 변경사항 취소
     setNewName(user.name);
     setNewPassword('');
     setIsEditing(false);
+  };
+
+  const handleSignOut = () => {
+    navigation.navigate('SignIn');
   };
 
   return (
@@ -67,7 +72,7 @@ const UserProfile = ({ route, navigation }) => {
           <Text>Name: {user.name}</Text>
           <Text>Email: {user.email}</Text>
           <Button title="Update" onPress={() => setIsEditing(true)} />
-          <Button title="Sign Out" onPress={() => navigation.popToTop()} />
+          <Button title="Sign Out" onPress={handleSignOut} />
         </>
       )}
     </View>
@@ -79,6 +84,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   input: {
     width: '80%',

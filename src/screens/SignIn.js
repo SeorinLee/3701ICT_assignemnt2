@@ -1,3 +1,5 @@
+//3701/assignmnet2/src/screens/SignIn.js
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { signIn } from '../api/api';
@@ -19,17 +21,21 @@ const SignInScreen = ({ route, navigation }) => {
       Alert.alert('Validation Error', 'Email and password are required');
       return;
     }
-    const result = await signIn(email, password);
-    if (result.status === 'OK') {
-      navigation.navigate('UserProfile', {
-        token: result.token,
-        user: {
-          name: result.name,
-          email: result.email,
-        },
-      });
-    } else {
-      Alert.alert('Login Failed', result.message || 'Unknown error');
+    try {
+      const result = await signIn(email, password);
+      if (result.status === 'OK') {
+        navigation.replace('MainUserProfile', {
+          token: result.token,
+          user: {
+            name: result.name,
+            email: result.email,
+          },
+        });
+      } else {
+        Alert.alert('Login Failed', result.message || 'Wrong email or password'); // 실패 메시지 수정
+      }
+    } catch (error) {
+      Alert.alert('Login Error', 'Unable to connect to the server. Please check your connection.');
     }
   };
 

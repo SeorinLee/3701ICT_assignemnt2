@@ -1,3 +1,4 @@
+// src/reducers/userReducer.js
 const initialState = {
   isLoggedIn: false,
   user: null,
@@ -7,6 +8,7 @@ const initialState = {
 const userReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'SIGN_IN':
+    case 'SIGN_UP': // 회원가입 성공 시 로그인 처리
       return {
         ...state,
         isLoggedIn: true,

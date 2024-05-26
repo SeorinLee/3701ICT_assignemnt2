@@ -11,7 +11,7 @@ function UserProfileStack() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="SignIn" component={SignIn} />
       <Stack.Screen name="SignUp" component={SignUp} />
-      <Stack.Screen name="UserProfile" component={UserProfile} />
+      <Stack.Screen name="MainUserProfile" component={UserProfile} />
     </Stack.Navigator>
   );
 }

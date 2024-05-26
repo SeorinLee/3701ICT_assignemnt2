@@ -6,7 +6,6 @@ import { Provider } from 'react-redux';
 import store from './src/store/store';
 import Splash from './src/screens/Splash';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator';
-import UserProfileStack from './src/stack/UserProfileStack'; // UserProfileStack import 추가
 
 const Stack = createNativeStackNavigator();
 
