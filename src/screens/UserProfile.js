@@ -1,3 +1,4 @@
+//3701/assignmnet2/src/screens/UserProfile.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { updateUser } from '../api/api';

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { signIn } from '../api/api';
 
-const SignInScreen = ({ route, navigation }) => {
+const SignIn = ({ route, navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -60,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignInScreen;
+export default SignIn;

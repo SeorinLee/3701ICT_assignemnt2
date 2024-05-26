@@ -17,10 +17,12 @@ const SignUp = ({ navigation }) => {
     try {
       const result = await signUp(name, email, password);
       if (result.status === 'OK') {
-        navigation.navigate('MainUserProfile', {
-          email: result.email,
-          name: result.name,
-          token: result.token // 서버로부터 받은 토큰
+        navigation.replace('MainUserProfile', {
+          token: result.token,
+          user: {
+            name: result.name,
+            email: result.email,
+          },
         });
       } else {
         Alert.alert('Signup Failed', result.message || 'An unknown error occurred');
