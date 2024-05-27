@@ -2,12 +2,16 @@
 //3701/assignmnet2/src/screens/SignUp.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
-import { signUp } from '../api/api';
+import { useDispatch } from 'react-redux';
+import { signUp, loadCartItems } from '../store/actions';
+import { signUp as signUpAPI } from '../api/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignUp = ({ navigation }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
 
   const handleSignUp = async () => {
     if (!name || !email || !password) {
@@ -16,8 +20,13 @@ const SignUp = ({ navigation }) => {
     }
 
     try {
-      const result = await signUp(name, email, password);
+      const result = await signUpAPI(name, email, password);
       if (result.status === 'OK') {
+        const cartItems = await AsyncStorage.getItem(`cart_${email}`);
+        if (cartItems) {
+          dispatch(loadCartItems(JSON.parse(cartItems)));
+        }
+        dispatch(signUp({ name: result.name, email: result.email }));
         navigation.replace('MainUserProfile', {
           token: result.token,
           user: {

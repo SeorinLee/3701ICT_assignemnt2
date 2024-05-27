@@ -1,14 +1,19 @@
 //3701/assignmnet2/src/screens/SignIn.js
 
+//3701/assignmnet2/src/screens/SignIn.js
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
-import { signIn } from '../api/api';
+import { useDispatch } from 'react-redux';
+import { signIn, loadCartItems } from '../store/actions';
+import { signIn as signInAPI } from '../api/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignIn = ({ route, navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
 
-  // SignUp에서 넘어온 데이터를 설정
   useEffect(() => {
     if (route.params) {
       setEmail(route.params.email);
@@ -22,8 +27,13 @@ const SignIn = ({ route, navigation }) => {
       return;
     }
     try {
-      const result = await signIn(email, password);
+      const result = await signInAPI(email, password);
       if (result.status === 'OK') {
+        const cartItems = await AsyncStorage.getItem(`cart_${email}`);
+        if (cartItems) {
+          dispatch(loadCartItems(JSON.parse(cartItems)));
+        }
+        dispatch(signIn({ name: result.name, email: result.email }));
         navigation.replace('MainUserProfile', {
           token: result.token,
           user: {
@@ -32,7 +42,7 @@ const SignIn = ({ route, navigation }) => {
           },
         });
       } else {
-        Alert.alert('Login Failed', result.message || 'Wrong email or password'); // 실패 메시지 수정
+        Alert.alert('Login Failed', result.message || 'Wrong email or password');
       }
     } catch (error) {
       Alert.alert('Login Error', 'Unable to connect to the server. Please check your connection.');
@@ -60,4 +70,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignIn;
+export default SignIn

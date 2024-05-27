@@ -1,7 +1,11 @@
 //3701/assignmnet2/src/screens/UserProfile.js
+// src/screens/UserProfile.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
-import { updateUser } from '../api/api';
+import { useDispatch, useSelector } from 'react-redux';
+import { signOut as signOutAction } from '../store/actions';
+import { saveCartItems as saveCartItemsAPI, updateUser } from '../api/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UserProfile = ({ route, navigation }) => {
   const token = route.params?.token;
@@ -9,6 +13,8 @@ const UserProfile = ({ route, navigation }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newName, setNewName] = useState(user?.name);
   const [newPassword, setNewPassword] = useState('');
+  const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.user.cartItems);
 
   useEffect(() => {
     if (!token) {
@@ -32,7 +38,7 @@ const UserProfile = ({ route, navigation }) => {
         Alert.alert('Update Failed', response.message || 'Failed to update profile.');
       }
     } catch (error) {
-      console.error('Update Profile Error:', error); // 에러 로그 추가
+      console.error('Update Profile Error:', error);
       Alert.alert('Network Error', 'Unable to connect to the server. Please try again later.');
     }
   };
@@ -43,17 +49,23 @@ const UserProfile = ({ route, navigation }) => {
     setIsEditing(false);
   };
 
-  const handleSignOut = () => {
-    // 로그아웃 시 토큰 제거 및 초기 상태로 만들기
-    setUser({ name: '', email: '' });
-    setNewName('');
-    setNewPassword('');
-    setIsEditing(false);
-    // 토큰 제거 및 초기화 후 로그인 화면으로 이동
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'SignIn' }],
-    });
+  const handleSignOut = async () => {
+    try {
+      await AsyncStorage.setItem(`cart_${user.email}`, JSON.stringify(cartItems));
+      const response = await saveCartItemsAPI(token, cartItems);
+      if (response.status === 'OK') {
+        dispatch(signOutAction());
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'SignIn' }],
+        });
+      } else {
+        Alert.alert('Sign Out Failed', 'Failed to save cart items.');
+      }
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      Alert.alert('Network Error', 'Unable to connect to the server. Please try again later.');
+    }
   };
 
   return (

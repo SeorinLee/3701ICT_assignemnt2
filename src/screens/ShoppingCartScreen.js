@@ -1,13 +1,51 @@
 //3701/assignmnet2/src/screens/ShoppingCartScreen.js
-import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { incrementQuantity, decrementQuantity, removeFromCart } from '../store/actions';
+import { incrementQuantity, decrementQuantity, removeFromCart, loadCartItems } from '../store/actions';
+import { getCartItems as getCartItemsAPI, saveCartItems as saveCartItemsAPI } from '../api/api';
+import { useNavigation } from '@react-navigation/native';
 
 const ShoppingCartScreen = () => {
   const cartItems = useSelector(state => state.user.cartItems || []);
-
+  const token = useSelector(state => state.user.token); // Assuming the token is stored in the user state
   const dispatch = useDispatch();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (token) {
+      console.log('Fetching cart items with token:', token); // 디버깅용 로그
+      getCartItemsAPI(token).then(response => {
+        console.log('Cart items response:', response); // 디버깅용 로그
+        if (response.status === 'OK') {
+          dispatch(loadCartItems(response.items.map(item => ({
+            id: item.id,
+            price: item.price,
+            quantity: item.count, // API에서 count로 불러오므로 quantity로 변환
+          }))));
+        } else {
+          console.error('Error loading cart items:', response.message); // 디버깅용 로그
+          Alert.alert('Error', 'Failed to load cart items.');
+        }
+      }).catch(error => {
+        console.error('GetCartItems API Error:', error); // 디버깅용 로그
+      });
+    } else {
+      navigation.navigate('SignIn');
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      saveCartItemsAPI(token, cartItems.map(item => ({
+        id: item.id,
+        price: item.price,
+        count: item.quantity, // 저장할 때는 quantity를 count로 변환
+      }))).catch(error => {
+        console.error('Error saving cart items:', error); // 디버깅용 로그
+      });
+    }
+  }, [cartItems]);
 
   const handleIncrement = (id) => {
     dispatch(incrementQuantity(id));

@@ -1,8 +1,7 @@
-//AuthContext.js
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
-import { signIn, signOut } from '../store/actions';
+import { signIn as signInAction, signOut as signOutAction } from '../store/actions';
 
 export const AuthContext = createContext();
 
@@ -18,10 +17,10 @@ export const AuthProvider = ({ children }) => {
         const storedStatus = await AsyncStorage.getItem('isLoggedIn');
         const storedUser = await AsyncStorage.getItem('user');
         if (storedStatus === 'true' && storedUser) {
-          setIsLoggedIn(true);
           const userData = JSON.parse(storedUser);
+          setIsLoggedIn(true);
           setUser(userData);
-          dispatch(signIn(userData));
+          dispatch(signInAction(userData));
         }
       } catch (error) {
         console.error('Failed to fetch login status:', error);
@@ -39,7 +38,7 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.setItem('user', JSON.stringify(userData));
       setIsLoggedIn(true);
       setUser(userData);
-      dispatch(signIn(userData));
+      dispatch(signInAction(userData));
     } catch (error) {
       console.error('Failed to log in:', error);
     }
@@ -51,7 +50,7 @@ export const AuthProvider = ({ children }) => {
       await AsyncStorage.removeItem('user');
       setIsLoggedIn(false);
       setUser(null);
-      dispatch(signOut());
+      dispatch(signOutAction());
     } catch (error) {
       console.error('Failed to log out:', error);
     }

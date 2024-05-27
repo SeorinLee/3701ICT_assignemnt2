@@ -6,27 +6,23 @@ import { Provider } from 'react-redux';
 import store from './src/store/store';
 import Splash from './src/screens/Splash';
 import BottomTabNavigator from './src/navigation/BottomTabNavigator';
-import { AuthProvider } from './src/context/AuthContext';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
     <Provider store={store}>
-      <AuthProvider>
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Splash" component={Splash} />
-            <Stack.Screen name="Main" component={BottomTabNavigator} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </AuthProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Splash" component={Splash} />
+          <Stack.Screen name="Main" component={BottomTabNavigator} />
+        </Stack.Navigator>
+      </NavigationContainer>
     </Provider>
   );
 };
 
 export default App;
-
 
 
 
