@@ -1,7 +1,5 @@
 //3701/assignmnet2/src/screens/SignIn.js
 
-//3701/assignmnet2/src/screens/SignIn.js
-
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
@@ -29,6 +27,9 @@ const SignIn = ({ route, navigation }) => {
     try {
       const result = await signInAPI(email, password);
       if (result.status === 'OK') {
+        // 토큰을 AsyncStorage에 저장
+        await AsyncStorage.setItem('userToken', result.token);
+
         const cartItems = await AsyncStorage.getItem(`cart_${email}`);
         if (cartItems) {
           dispatch(loadCartItems(JSON.parse(cartItems)));
@@ -70,4 +71,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignIn
+export default SignIn;

@@ -93,3 +93,59 @@ export const saveCartItems = async (token, items) => {
     console.error('SaveCartItems Error:', error);
   }
 };
+
+export const getOrders = async (token) => {
+  try {
+    const response = await fetch('http://192.168.0.45:3000/orders/all', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+    });
+    const jsonResponse = await response.json();
+    console.log('GetOrders Response:', jsonResponse);
+    return jsonResponse;
+  } catch (error) {
+    console.error('GetOrders Error:', error);
+  }
+};
+
+export const createOrderAPI = async (token, items) => {
+  try {
+    const response = await fetch('http://192.168.0.45:3000/orders/neworder', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ items })
+    });
+    const jsonResponse = await response.json();
+    console.log('CreateOrder Response:', jsonResponse); // 디버깅용 로그
+    return jsonResponse;
+  } catch (error) {
+    console.error('CreateOrder Error:', error);
+  }
+};
+
+export const updateOrder = async (token, orderId, status) => {
+  try {
+    const response = await fetch('http://192.168.0.45:3000/orders/updateorder', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ orderID: orderId, ...status }),
+    });
+    const jsonResponse = await response.json();
+    console.log('UpdateOrder Response:', jsonResponse);
+    return jsonResponse;
+  } catch (error) {
+    console.error('UpdateOrder Error:', error);
+  }
+};

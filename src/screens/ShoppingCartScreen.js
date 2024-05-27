@@ -1,10 +1,12 @@
-//3701/assignmnet2/src/screens/ShoppingCartScreen.js
+// 3701/assignmnet2/src/screens/ShoppingCartScreen.js
+
 import React, { useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Alert, Button } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { incrementQuantity, decrementQuantity, removeFromCart, loadCartItems } from '../store/actions';
-import { getCartItems as getCartItemsAPI, saveCartItems as saveCartItemsAPI } from '../api/api';
+import { incrementQuantity, decrementQuantity, removeFromCart, loadCartItems, fetchOrders } from '../store/actions';
+import { getCartItems as getCartItemsAPI, saveCartItems as saveCartItemsAPI, createOrderAPI, getOrders as getOrdersAPI } from '../api/api';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ShoppingCartScreen = () => {
   const cartItems = useSelector(state => state.user.cartItems || []);
@@ -59,6 +61,36 @@ const ShoppingCartScreen = () => {
     }
   };
 
+  const handleCheckout = async () => {
+    try {
+      const storedToken = await AsyncStorage.getItem('userToken'); // 로컬 저장소에서 토큰 가져오기
+      console.log('Token being used for checkout:', storedToken); // 토큰 확인용 로그
+      const response = await createOrderAPI(storedToken, cartItems.map(item => ({
+        prodID: item.id,
+        price: item.price,
+        quantity: item.quantity,
+      })));
+      console.log('CreateOrder Response:', response); // 응답 확인용 로그
+      if (response.status === 'OK') {
+        Alert.alert('Order Created', 'Your order has been placed successfully.');
+        dispatch(loadCartItems([])); // Clear local cart state
+
+        // 주문 상태를 업데이트하기 위해 새로고침
+        const ordersResponse = await getOrdersAPI(storedToken);
+        if (ordersResponse.status === 'OK') {
+          dispatch(fetchOrders(ordersResponse.orders));
+        }
+
+        navigation.navigate('Order'); // Order 페이지로 이동
+      } else {
+        Alert.alert('Checkout Failed', response.message || 'Failed to create order.');
+      }
+    } catch (error) {
+      console.error('Checkout Error:', error);
+      Alert.alert('Network Error', 'Unable to connect to the server. Please try again later.');
+    }
+  };
+
   const renderCartItem = ({ item }) => (
     <View style={styles.itemContainer}>
       <Image source={{ uri: item.image }} style={styles.image} />
@@ -88,6 +120,7 @@ const ShoppingCartScreen = () => {
             renderItem={renderCartItem}
             keyExtractor={item => item.id.toString()}
           />
+          <Button title="Check Out" onPress={handleCheckout} />
         </>
       ) : (
         <Text style={styles.emptyCart}>Your shopping cart is empty.</Text>
@@ -142,3 +175,4 @@ const styles = StyleSheet.create({
 });
 
 export default ShoppingCartScreen;
+

@@ -1,5 +1,4 @@
 //3701/assignmnet2/src/screens/UserProfile.js
-// src/screens/UserProfile.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -52,7 +51,11 @@ const UserProfile = ({ route, navigation }) => {
   const handleSignOut = async () => {
     try {
       await AsyncStorage.setItem(`cart_${user.email}`, JSON.stringify(cartItems));
-      const response = await saveCartItemsAPI(token, cartItems);
+      const response = await saveCartItemsAPI(token, cartItems.map(item => ({
+        id: item.id,
+        price: item.price,
+        count: item.quantity, // 저장할 때는 quantity를 count로 변환
+      })));
       if (response.status === 'OK') {
         dispatch(signOutAction());
         navigation.reset({
