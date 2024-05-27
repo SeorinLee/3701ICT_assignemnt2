@@ -6,6 +6,7 @@ export const signIn = (user) => ({
 
 export const signOut = () => ({
   type: 'SIGN_OUT',
+  payload: { user },
 });
 
 export const addToCart = (product) => ({

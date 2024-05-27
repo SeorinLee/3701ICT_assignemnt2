@@ -44,7 +44,16 @@ const UserProfile = ({ route, navigation }) => {
   };
 
   const handleSignOut = () => {
-    navigation.navigate('SignIn');
+    // 로그아웃 시 토큰 제거 및 초기 상태로 만들기
+    setUser({ name: '', email: '' });
+    setNewName('');
+    setNewPassword('');
+    setIsEditing(false);
+    // 토큰 제거 및 초기화 후 로그인 화면으로 이동
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'SignIn' }],
+    });
   };
 
   return (

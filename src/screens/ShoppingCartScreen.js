@@ -1,3 +1,4 @@
+//3701/assignmnet2/src/screens/ShoppingCartScreen.js
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
