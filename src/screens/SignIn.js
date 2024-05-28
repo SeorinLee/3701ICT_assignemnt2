@@ -1,5 +1,7 @@
 //3701/assignmnet2/src/screens/SignIn.js
 
+// src/screens/SignIn.js
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
@@ -27,14 +29,14 @@ const SignIn = ({ route, navigation }) => {
     try {
       const result = await signInAPI(email, password);
       if (result.status === 'OK') {
-        // 토큰을 AsyncStorage에 저장
-        await AsyncStorage.setItem('userToken', result.token);
+        await AsyncStorage.setItem('userToken', result.token); // 토큰 저장
+        console.log('Token stored:', result.token); // 저장된 토큰 로그 추가
 
         const cartItems = await AsyncStorage.getItem(`cart_${email}`);
         if (cartItems) {
           dispatch(loadCartItems(JSON.parse(cartItems)));
         }
-        dispatch(signIn({ name: result.name, email: result.email }));
+        dispatch(signIn({ name: result.name, email: result.email, token: result.token })); // 토큰 포함
         navigation.replace('MainUserProfile', {
           token: result.token,
           user: {

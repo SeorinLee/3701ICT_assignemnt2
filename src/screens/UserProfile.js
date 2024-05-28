@@ -14,6 +14,7 @@ const UserProfile = ({ route, navigation }) => {
   const [newPassword, setNewPassword] = useState('');
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.user.cartItems);
+  const orders = useSelector((state) => state.orders);
 
   useEffect(() => {
     if (!token) {
@@ -50,12 +51,24 @@ const UserProfile = ({ route, navigation }) => {
 
   const handleSignOut = async () => {
     try {
-      await AsyncStorage.setItem(`cart_${user.email}`, JSON.stringify(cartItems));
+      if (cartItems && cartItems.length > 0) {
+        await AsyncStorage.setItem(`cart_${user.email}`, JSON.stringify(cartItems));
+      } else {
+        await AsyncStorage.removeItem(`cart_${user.email}`);
+      }
+
+      if (orders && Object.keys(orders).length > 0) {
+        await AsyncStorage.setItem(`orders_${user.email}`, JSON.stringify(orders));
+      } else {
+        await AsyncStorage.removeItem(`orders_${user.email}`);
+      }
+
       const response = await saveCartItemsAPI(token, cartItems.map(item => ({
         id: item.id,
         price: item.price,
-        count: item.quantity, // 저장할 때는 quantity를 count로 변환
+        count: item.quantity,
       })));
+      
       if (response.status === 'OK') {
         dispatch(signOutAction());
         navigation.reset({

@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { signUp, loadCartItems } from '../store/actions';
-import { signUp as signUpAPI, getCartItems as getCartItemsAPI } from '../api/api';
+import { signUp, loadCartItems, fetchOrders } from '../store/actions';
+import { signUp as signUpAPI, getCartItems as getCartItemsAPI, getOrders as getOrdersAPI } from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignUp = ({ navigation }) => {
@@ -22,25 +22,29 @@ const SignUp = ({ navigation }) => {
     try {
       const result = await signUpAPI(name, email, password);
       if (result.status === 'OK') {
-        // 토큰을 AsyncStorage에 저장
         await AsyncStorage.setItem('userToken', result.token);
 
-        // 로컬 저장소에서 사용자 카트 데이터 불러오기
         const localCartItems = await AsyncStorage.getItem(`cart_${email}`);
         if (localCartItems) {
           dispatch(loadCartItems(JSON.parse(localCartItems)));
         }
 
-        // 서버에서 사용자 카트 데이터 불러오기
         const cartResponse = await getCartItemsAPI(result.token);
         if (cartResponse.status === 'OK') {
           dispatch(loadCartItems(cartResponse.items.map(item => ({
             id: item.id,
             price: item.price,
-            quantity: item.count, // API에서 count로 불러오므로 quantity로 변환
+            quantity: item.count,
           }))));
         } else {
           console.error('Failed to load cart items:', cartResponse.message);
+        }
+
+        const ordersResponse = await getOrdersAPI(result.token);
+        if (ordersResponse.status === 'OK') {
+          dispatch(fetchOrders(ordersResponse.orders));
+        } else {
+          console.error('Failed to load orders:', ordersResponse.message);
         }
 
         dispatch(signUp({ name: result.name, email: result.email, token: result.token }));

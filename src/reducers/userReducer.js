@@ -8,12 +8,20 @@ import {
   DECREMENT_QUANTITY,
   REMOVE_FROM_CART,
   LOAD_CART_ITEMS,
+  FETCH_ORDERS,
+  UPDATE_ORDER_STATUS,
 } from '../store/actions';
 
 const initialState = {
   isLoggedIn: false,
   user: null,
+  token: null, // 토큰 추가
   cartItems: [],
+  orders: {
+    newOrders: [],
+    paidOrders: [],
+    deliveredOrders: [],
+  },
 };
 
 const userReducer = (state = initialState, action) => {
@@ -23,14 +31,21 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         isLoggedIn: true,
-        user: action.payload,
+        user: action.payload.user,
+        token: action.payload.token, // 토큰 저장
       };
     case SIGN_OUT:
       return {
         ...state,
         isLoggedIn: false,
         user: null,
+        token: null, // 토큰 제거
         cartItems: [],
+        orders: {
+          newOrders: [],
+          paidOrders: [],
+          deliveredOrders: [],
+        },
       };
     case ADD_TO_CART:
       const existingItem = state.cartItems.find((item) => item.id === action.payload.id);
@@ -75,6 +90,43 @@ const userReducer = (state = initialState, action) => {
         ...state,
         cartItems: action.payload,
       };
+    case FETCH_ORDERS:
+      const newOrders = action.payload.filter(order => !order.is_paid && !order.is_delivered);
+      const paidOrders = action.payload.filter(order => order.is_paid && !order.is_delivered);
+      const deliveredOrders = action.payload.filter(order => order.is_paid && order.is_delivered);
+      return {
+        ...state,
+        orders: {
+          newOrders,
+          paidOrders,
+          deliveredOrders,
+        },
+      };
+    case UPDATE_ORDER_STATUS:
+      const { orderId, status } = action.payload;
+      let updatedOrders;
+      if (status.isPaid) {
+        updatedOrders = state.orders.newOrders.map(order => order.id === orderId ? { ...order, is_paid: 1 } : order);
+        return {
+          ...state,
+          orders: {
+            newOrders: updatedOrders.filter(order => !order.is_paid),
+            paidOrders: [...state.orders.paidOrders, ...updatedOrders.filter(order => order.is_paid && !order.is_delivered)],
+            deliveredOrders: state.orders.deliveredOrders,
+          },
+        };
+      } else if (status.isDelivered) {
+        updatedOrders = state.orders.paidOrders.map(order => order.id === orderId ? { ...order, is_delivered: 1 } : order);
+        return {
+          ...state,
+          orders: {
+            newOrders: state.orders.newOrders,
+            paidOrders: updatedOrders.filter(order => !order.is_delivered),
+            deliveredOrders: [...state.orders.deliveredOrders, ...updatedOrders.filter(order => order.is_delivered)],
+          },
+        };
+      }
+      return state;
     default:
       return state;
   }

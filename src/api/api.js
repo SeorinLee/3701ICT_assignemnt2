@@ -37,6 +37,7 @@ export const signUp = async (name, email, password) => {
 
 export const updateUser = async (name, password, token) => {
   try {
+    console.log('Sending request to update user with token:', token); // 토큰 확인 로그
     const response = await fetch('http://192.168.0.45:3000/users/update', {
       method: 'POST',
       headers: {
@@ -46,17 +47,22 @@ export const updateUser = async (name, password, token) => {
       },
       body: JSON.stringify({ name, password })
     });
+    
     const jsonResponse = await response.json();
-    console.log('UpdateUser Response:', jsonResponse); // 디버깅용 로그
+    console.log('UpdateUser Response:', jsonResponse); // 서버 응답 로그
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error('HTTP error! status:', response.status, 'message:', jsonResponse.message);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${jsonResponse.message}`);
     }
+
     return jsonResponse;
   } catch (error) {
     console.error('Update User Error:', error);
     throw error;
   }
 };
+
 
 export const getCartItems = async (token) => {
   try {
@@ -133,6 +139,8 @@ export const createOrderAPI = async (token, items) => {
 
 export const updateOrder = async (token, orderId, status) => {
   try {
+    // isDelivered가 제공되지 않으면 기본 값을 false로 설정
+    const { isPaid, isDelivered = false } = status;
     const response = await fetch('http://192.168.0.45:3000/orders/updateorder', {
       method: 'POST',
       headers: {
@@ -140,12 +148,25 @@ export const updateOrder = async (token, orderId, status) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ orderID: orderId, ...status }),
+      body: JSON.stringify({ orderID: orderId, isPaid, isDelivered }),
     });
     const jsonResponse = await response.json();
     console.log('UpdateOrder Response:', jsonResponse);
     return jsonResponse;
   } catch (error) {
     console.error('UpdateOrder Error:', error);
+  }
+};
+
+
+
+export const fetchProductDetails = async (productId) => {
+  try {
+    const response = await fetch(`https://fakestoreapi.com/products/${productId}`);
+    const product = await response.json();
+    return product;
+  } catch (error) {
+    console.error('Error fetching product details:', error);
+    throw error;
   }
 };
