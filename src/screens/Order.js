@@ -81,12 +81,19 @@ const Order = () => {
     console.log('Using token:', token); // 토큰 로그 추가
     console.log('Updating order with orderId:', orderId); // orderId 로그 추가
     console.log('Updating order with status:', status); // status 로그 추가
+
+    const fullStatus = {
+      ...status,
+      isPaid: status.isPaid ?? false,
+      isDelivered: status.isDelivered ?? false,
+    };
+
     setLoading(true);
     try {
-      const response = await updateOrderAPI(token, orderId, status);
+      const response = await updateOrderAPI(token, orderId, fullStatus);
       setLoading(false);
       if (response.status === 'OK') {
-        dispatch(updateOrderStatus(orderId, status));
+        dispatch(updateOrderStatus(orderId, fullStatus));
         Alert.alert('Success', `Your order is now ${status.isPaid ? 'paid' : 'delivered'}`);
       } else {
         Alert.alert('Error', `Failed to update order status: ${response.message}`);
@@ -98,7 +105,6 @@ const Order = () => {
     }
   };
   
-
   const renderOrderItem = (product) => {
     const productDetail = productDetails[product.prodID];
     if (!productDetail) return null;

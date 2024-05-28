@@ -102,30 +102,31 @@ const userReducer = (state = initialState, action) => {
           deliveredOrders,
         },
       };
-    case UPDATE_ORDER_STATUS:
-      const { orderId, status } = action.payload;
-      let updatedOrders;
-      if (status.isPaid) {
-        updatedOrders = state.orders.newOrders.map(order => order.id === orderId ? { ...order, is_paid: 1 } : order);
+      case UPDATE_ORDER_STATUS:
+        const { orderId, status } = action.payload;
+        let updatedNewOrders = state.orders.newOrders;
+        let updatedPaidOrders = state.orders.paidOrders;
+        let updatedDeliveredOrders = state.orders.deliveredOrders;
+      
+        if (status.isPaid) {
+          const updatedOrder = state.orders.newOrders.find(order => order.id === orderId);
+          updatedNewOrders = state.orders.newOrders.filter(order => order.id !== orderId);
+          updatedPaidOrders = [...state.orders.paidOrders, { ...updatedOrder, is_paid: 1 }];
+        } else if (status.isDelivered) {
+          const updatedOrder = state.orders.paidOrders.find(order => order.id === orderId);
+          updatedPaidOrders = state.orders.paidOrders.filter(order => order.id !== orderId);
+          updatedDeliveredOrders = [...state.orders.deliveredOrders, { ...updatedOrder, is_delivered: 1 }];
+        }
+      
         return {
           ...state,
           orders: {
-            newOrders: updatedOrders.filter(order => !order.is_paid),
-            paidOrders: [...state.orders.paidOrders, ...updatedOrders.filter(order => order.is_paid && !order.is_delivered)],
-            deliveredOrders: state.orders.deliveredOrders,
+            newOrders: updatedNewOrders,
+            paidOrders: updatedPaidOrders,
+            deliveredOrders: updatedDeliveredOrders,
           },
         };
-      } else if (status.isDelivered) {
-        updatedOrders = state.orders.paidOrders.map(order => order.id === orderId ? { ...order, is_delivered: 1 } : order);
-        return {
-          ...state,
-          orders: {
-            newOrders: state.orders.newOrders,
-            paidOrders: updatedOrders.filter(order => !order.is_delivered),
-            deliveredOrders: [...state.orders.deliveredOrders, ...updatedOrders.filter(order => order.is_delivered)],
-          },
-        };
-      }
+      
       return state;
     default:
       return state;
