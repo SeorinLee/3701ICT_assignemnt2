@@ -158,8 +158,6 @@ export const updateOrder = async (token, orderId, status) => {
   }
 };
 
-
-
 export const fetchProductDetails = async (productId) => {
   try {
     const response = await fetch(`https://fakestoreapi.com/products/${productId}`);

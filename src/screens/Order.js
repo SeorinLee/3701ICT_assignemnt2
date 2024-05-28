@@ -76,7 +76,7 @@ const Order = () => {
       }
     }
   };
-  
+
   const handleUpdateOrder = async (orderId, status) => {
     console.log('Using token:', token); // 토큰 로그 추가
     console.log('Updating order with orderId:', orderId); // orderId 로그 추가
@@ -104,7 +104,7 @@ const Order = () => {
       Alert.alert('Error', 'Failed to update order status.');
     }
   };
-  
+
   const renderOrderItem = (product) => {
     const productDetail = productDetails[product.prodID];
     if (!productDetail) return null;

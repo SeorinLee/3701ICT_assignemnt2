@@ -1,4 +1,5 @@
 //3701/assignmnet2/src/screens/UserProfile.js
+// 3701/assignmnet2/src/screens/UserProfile.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,7 +15,7 @@ const UserProfile = ({ route, navigation }) => {
   const [newPassword, setNewPassword] = useState('');
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.user.cartItems);
-  const orders = useSelector((state) => state.orders);
+  const orders = useSelector((state) => state.user.orders);
 
   useEffect(() => {
     if (!token) {

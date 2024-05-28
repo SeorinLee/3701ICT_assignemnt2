@@ -91,43 +91,52 @@ const userReducer = (state = initialState, action) => {
         cartItems: action.payload,
       };
     case FETCH_ORDERS:
-      const newOrders = action.payload.filter(order => !order.is_paid && !order.is_delivered);
-      const paidOrders = action.payload.filter(order => order.is_paid && !order.is_delivered);
-      const deliveredOrders = action.payload.filter(order => order.is_paid && order.is_delivered);
-      return {
-        ...state,
-        orders: {
-          newOrders,
-          paidOrders,
-          deliveredOrders,
-        },
-      };
-      case UPDATE_ORDER_STATUS:
-        const { orderId, status } = action.payload;
-        let updatedNewOrders = state.orders.newOrders;
-        let updatedPaidOrders = state.orders.paidOrders;
-        let updatedDeliveredOrders = state.orders.deliveredOrders;
-      
-        if (status.isPaid) {
-          const updatedOrder = state.orders.newOrders.find(order => order.id === orderId);
-          updatedNewOrders = state.orders.newOrders.filter(order => order.id !== orderId);
-          updatedPaidOrders = [...state.orders.paidOrders, { ...updatedOrder, is_paid: 1 }];
-        } else if (status.isDelivered) {
-          const updatedOrder = state.orders.paidOrders.find(order => order.id === orderId);
-          updatedPaidOrders = state.orders.paidOrders.filter(order => order.id !== orderId);
-          updatedDeliveredOrders = [...state.orders.deliveredOrders, { ...updatedOrder, is_delivered: 1 }];
-        }
-      
+      if (Array.isArray(action.payload)) {
+        const newOrders = action.payload.filter(order => !order.is_paid && !order.is_delivered);
+        const paidOrders = action.payload.filter(order => order.is_paid && !order.is_delivered);
+        const deliveredOrders = action.payload.filter(order => order.is_paid && order.is_delivered);
         return {
           ...state,
           orders: {
-            newOrders: updatedNewOrders,
-            paidOrders: updatedPaidOrders,
-            deliveredOrders: updatedDeliveredOrders,
+            newOrders,
+            paidOrders,
+            deliveredOrders,
           },
         };
-      
-      return state;
+      } else {
+        return {
+          ...state,
+          orders: {
+            newOrders: action.payload.newOrders || [],
+            paidOrders: action.payload.paidOrders || [],
+            deliveredOrders: action.payload.deliveredOrders || [],
+          },
+        };
+      }
+    case UPDATE_ORDER_STATUS:
+      const { orderId, status } = action.payload;
+      let updatedNewOrders = state.orders.newOrders;
+      let updatedPaidOrders = state.orders.paidOrders;
+      let updatedDeliveredOrders = state.orders.deliveredOrders;
+
+      if (status.isPaid) {
+        const updatedOrder = state.orders.newOrders.find(order => order.id === orderId);
+        updatedNewOrders = state.orders.newOrders.filter(order => order.id !== orderId);
+        updatedPaidOrders = [...state.orders.paidOrders, { ...updatedOrder, is_paid: 1 }];
+      } else if (status.isDelivered) {
+        const updatedOrder = state.orders.paidOrders.find(order => order.id === orderId);
+        updatedPaidOrders = state.orders.paidOrders.filter(order => order.id !== orderId);
+        updatedDeliveredOrders = [...state.orders.deliveredOrders, { ...updatedOrder, is_delivered: 1 }];
+      }
+
+      return {
+        ...state,
+        orders: {
+          newOrders: updatedNewOrders,
+          paidOrders: updatedPaidOrders,
+          deliveredOrders: updatedDeliveredOrders,
+        },
+      };
     default:
       return state;
   }

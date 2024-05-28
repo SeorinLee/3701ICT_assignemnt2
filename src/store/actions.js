@@ -1,4 +1,5 @@
 // src/store/actions.js
+
 export const ADD_TO_CART = 'ADD_TO_CART';
 export const INCREMENT_QUANTITY = 'INCREMENT_QUANTITY';
 export const DECREMENT_QUANTITY = 'DECREMENT_QUANTITY';
@@ -30,9 +31,9 @@ export const removeFromCart = (productId) => ({
   payload: productId,
 });
 
-export const signIn = (user) => ({
+export const signIn = (user, token) => ({
   type: SIGN_IN,
-  payload: user,
+  payload: { user, token },
 });
 
 export const signOut = () => ({

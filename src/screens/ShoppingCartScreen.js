@@ -1,10 +1,10 @@
 // 3701/assignmnet2/src/screens/ShoppingCartScreen.js
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Alert, Button } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { incrementQuantity, decrementQuantity, removeFromCart, loadCartItems, fetchOrders } from '../store/actions';
-import { getCartItems as getCartItemsAPI, saveCartItems as saveCartItemsAPI, createOrderAPI, getOrders as getOrdersAPI } from '../api/api';
+import { getCartItems as getCartItemsAPI, saveCartItems as saveCartItemsAPI, createOrderAPI, getOrders as getOrdersAPI, fetchProductDetails } from '../api/api';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -13,6 +13,7 @@ const ShoppingCartScreen = () => {
   const token = useSelector(state => state.user.token); // Assuming the token is stored in the user state
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const [productDetails, setProductDetails] = useState({});
 
   useEffect(() => {
     if (token) {
@@ -25,6 +26,7 @@ const ShoppingCartScreen = () => {
             price: item.price,
             quantity: item.count, // API에서 count로 불러오므로 quantity로 변환
           }))));
+          loadProductDetails(response.items.map(item => item.id)); // 제품 디테일 불러오기
         } else {
           console.error('Error loading cart items:', response.message); // 디버깅용 로그
           Alert.alert('Error', 'Failed to load cart items.');
@@ -48,6 +50,19 @@ const ShoppingCartScreen = () => {
       });
     }
   }, [cartItems]);
+
+  const loadProductDetails = async (itemIds) => {
+    try {
+      const details = {};
+      for (const id of itemIds) {
+        const detail = await fetchProductDetails(id);
+        details[id] = detail;
+      }
+      setProductDetails(details);
+    } catch (error) {
+      console.error('Error loading product details:', error);
+    }
+  };
 
   const handleIncrement = (id) => {
     dispatch(incrementQuantity(id));
@@ -91,21 +106,26 @@ const ShoppingCartScreen = () => {
     }
   };
 
-  const renderCartItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <Text style={styles.itemText}>{item.title} - ${item.price}</Text>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => handleDecrement(item.id)}>
-          <Text>-</Text>
-        </TouchableOpacity>
-        <Text style={styles.quantity}>{item.quantity}</Text>
-        <TouchableOpacity style={styles.button} onPress={() => handleIncrement(item.id)}>
-          <Text>+</Text>
-        </TouchableOpacity>
+  const renderCartItem = ({ item }) => {
+    const productDetail = productDetails[item.id];
+    return (
+      <View style={styles.itemContainer}>
+        {productDetail && (
+          <Image source={{ uri: productDetail.image }} style={styles.image} />
+        )}
+        <Text style={styles.itemText}>{productDetail ? productDetail.title : 'Loading...'} - ${item.price}</Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity style={styles.button} onPress={() => handleDecrement(item.id)}>
+            <Text>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.quantity}>{item.quantity}</Text>
+          <TouchableOpacity style={styles.button} onPress={() => handleIncrement(item.id)}>
+            <Text>+</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = cartItems.reduce((acc, item) => acc + (item.quantity * item.price), 0);
@@ -175,4 +195,3 @@ const styles = StyleSheet.create({
 });
 
 export default ShoppingCartScreen;
-

@@ -1,12 +1,10 @@
-//3701/assignmnet2/src/screens/SignIn.js
-
-// src/screens/SignIn.js
+// 3701/assignmnet2/src/screens/SignIn.js
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { signIn, loadCartItems } from '../store/actions';
-import { signIn as signInAPI } from '../api/api';
+import { signIn, loadCartItems, fetchOrders } from '../store/actions'; // fetchOrders 추가
+import { signIn as signInAPI, getOrders as getOrdersAPI } from '../api/api'; // getOrdersAPI 추가
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignIn = ({ route, navigation }) => {
@@ -29,14 +27,36 @@ const SignIn = ({ route, navigation }) => {
     try {
       const result = await signInAPI(email, password);
       if (result.status === 'OK') {
-        await AsyncStorage.setItem('userToken', result.token); // 토큰 저장
-        console.log('Token stored:', result.token); // 저장된 토큰 로그 추가
-
         const cartItems = await AsyncStorage.getItem(`cart_${email}`);
         if (cartItems) {
           dispatch(loadCartItems(JSON.parse(cartItems)));
         }
-        dispatch(signIn({ name: result.name, email: result.email, token: result.token })); // 토큰 포함
+        dispatch(signIn({ name: result.name, email: result.email }, result.token));
+
+        // 주문 데이터 가져오기
+        const ordersResponse = await getOrdersAPI(result.token);
+        if (ordersResponse.status === 'OK') {
+          // 저장된 주문 상태 불러오기
+          const savedOrders = await AsyncStorage.getItem(`orders_${email}`);
+          if (savedOrders) {
+            const parsedSavedOrders = JSON.parse(savedOrders);
+            const allOrders = {
+              newOrders: [...ordersResponse.orders.filter(order => !order.is_paid && !order.is_delivered)],
+              paidOrders: [...ordersResponse.orders.filter(order => order.is_paid && !order.is_delivered)],
+              deliveredOrders: [...parsedSavedOrders.deliveredOrders]
+            };
+            dispatch(fetchOrders(allOrders));
+          } else {
+            dispatch(fetchOrders({
+              newOrders: [...ordersResponse.orders.filter(order => !order.is_paid && !order.is_delivered)],
+              paidOrders: [...ordersResponse.orders.filter(order => order.is_paid && !order.is_delivered)],
+              deliveredOrders: []
+            }));
+          }
+        } else {
+          Alert.alert('Error', 'Failed to load orders.');
+        }
+
         navigation.replace('MainUserProfile', {
           token: result.token,
           user: {
@@ -48,6 +68,7 @@ const SignIn = ({ route, navigation }) => {
         Alert.alert('Login Failed', result.message || 'Wrong email or password');
       }
     } catch (error) {
+      console.error('Login Error:', error);
       Alert.alert('Login Error', 'Unable to connect to the server. Please check your connection.');
     }
   };
