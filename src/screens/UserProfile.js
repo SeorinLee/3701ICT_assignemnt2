@@ -1,4 +1,3 @@
-//3701/assignmnet2/src/screens/UserProfile.js
 // 3701/assignmnet2/src/screens/UserProfile.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
@@ -52,24 +51,13 @@ const UserProfile = ({ route, navigation }) => {
 
   const handleSignOut = async () => {
     try {
-      if (cartItems && cartItems.length > 0) {
-        await AsyncStorage.setItem(`cart_${user.email}`, JSON.stringify(cartItems));
-      } else {
-        await AsyncStorage.removeItem(`cart_${user.email}`);
-      }
-
-      if (orders && Object.keys(orders).length > 0) {
-        await AsyncStorage.setItem(`orders_${user.email}`, JSON.stringify(orders));
-      } else {
-        await AsyncStorage.removeItem(`orders_${user.email}`);
-      }
-
+      await AsyncStorage.setItem(`cart_${user.email}`, JSON.stringify(cartItems));
+      await AsyncStorage.setItem(`orders_${user.email}`, JSON.stringify(orders));
       const response = await saveCartItemsAPI(token, cartItems.map(item => ({
         id: item.id,
         price: item.price,
         count: item.quantity,
       })));
-      
       if (response.status === 'OK') {
         dispatch(signOutAction());
         navigation.reset({

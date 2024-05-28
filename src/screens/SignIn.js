@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { signIn, loadCartItems, fetchOrders } from '../store/actions'; // fetchOrders 추가
-import { signIn as signInAPI, getOrders as getOrdersAPI } from '../api/api'; // getOrdersAPI 추가
+import { signIn, loadCartItems, fetchOrders } from '../store/actions';
+import { signIn as signInAPI, getOrders as getOrdersAPI } from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignIn = ({ route, navigation }) => {
@@ -33,24 +33,22 @@ const SignIn = ({ route, navigation }) => {
         }
         dispatch(signIn({ name: result.name, email: result.email }, result.token));
 
-        // 주문 데이터 가져오기
         const ordersResponse = await getOrdersAPI(result.token);
         if (ordersResponse.status === 'OK') {
-          // 저장된 주문 상태 불러오기
           const savedOrders = await AsyncStorage.getItem(`orders_${email}`);
           if (savedOrders) {
             const parsedSavedOrders = JSON.parse(savedOrders);
             const allOrders = {
               newOrders: [...ordersResponse.orders.filter(order => !order.is_paid && !order.is_delivered)],
               paidOrders: [...ordersResponse.orders.filter(order => order.is_paid && !order.is_delivered)],
-              deliveredOrders: [...parsedSavedOrders.deliveredOrders]
+              deliveredOrders: [...parsedSavedOrders.deliveredOrders],
             };
             dispatch(fetchOrders(allOrders));
           } else {
             dispatch(fetchOrders({
               newOrders: [...ordersResponse.orders.filter(order => !order.is_paid && !order.is_delivered)],
               paidOrders: [...ordersResponse.orders.filter(order => order.is_paid && !order.is_delivered)],
-              deliveredOrders: []
+              deliveredOrders: [],
             }));
           }
         } else {
