@@ -1,8 +1,11 @@
 
 //3701/assignmnet2/src/screens/SignUp.js
+
+// 3701/assignment2/src/screens/SignUp.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useDispatch } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 import { signUp, loadCartItems, fetchOrders } from '../store/actions';
 import { signUp as signUpAPI, getCartItems as getCartItemsAPI, getOrders as getOrdersAPI } from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -75,8 +78,16 @@ const SignUp = ({ navigation }) => {
       <TextInput placeholder="Name" value={name} onChangeText={setName} style={styles.input} />
       <TextInput placeholder="Email" value={email} onChangeText={setEmail} autoCapitalize="none" style={styles.input} />
       <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
-      <Button title="Sign Up" onPress={handleSignUp} />
-      <Button title="Clear" onPress={clearFields} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+          <Ionicons name="add" size={20} color="white" />
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={clearFields}>
+          <Ionicons name="close-circle" size={20} color="white" />
+          <Text style={styles.buttonText}>Clear</Text>
+        </TouchableOpacity>
+      </View>
       <Text onPress={() => navigation.navigate('SignIn')}>Switch to: sign in</Text>
     </View>
   );
@@ -88,6 +99,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#EEE3CB', // 배경 색상 추가
   },
   input: {
     width: '80%',
@@ -96,6 +108,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
+  },
+  buttonContainer: {
+    flexDirection: 'row', // 버튼을 가로로 배치
+    marginTop: 20,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#967E76',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginHorizontal: 10, // 버튼 사이의 간격
+  },
+  buttonText: {
+    color: 'white',
+    marginLeft: 10, // 아이콘과 텍스트 사이의 간격
   },
 });
 

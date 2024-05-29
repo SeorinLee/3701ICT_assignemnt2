@@ -1,7 +1,8 @@
 // 3701/assignmnet2/src/screens/UserProfile.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 import { signOut as signOutAction } from '../store/actions';
 import { saveCartItems as saveCartItemsAPI, updateUser } from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -91,15 +92,31 @@ const UserProfile = ({ route, navigation }) => {
             secureTextEntry
             style={styles.input}
           />
-          <Button title="Confirm" onPress={handleUpdate} />
-          <Button title="Cancel" onPress={handleCancel} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+              <Ionicons name="checkmark" size={20} color="white" />
+              <Text style={styles.buttonText}>Confirm</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleCancel}>
+              <Ionicons name="close" size={20} color="white" />
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </>
       ) : (
         <>
           <Text>Name: {user.name}</Text>
           <Text>Email: {user.email}</Text>
-          <Button title="Update" onPress={() => setIsEditing(true)} />
-          <Button title="Sign Out" onPress={handleSignOut} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => setIsEditing(true)}>
+              <Ionicons name="color-wand" size={20} color="white" />
+              <Text style={styles.buttonText}>Update</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleSignOut}>
+              <Ionicons name="log-out" size={20} color="white" />
+              <Text style={styles.buttonText}>Sign Out</Text>
+            </TouchableOpacity>
+          </View>
         </>
       )}
     </View>
@@ -112,6 +129,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#EEE3CB', // 배경 색상 추가
   },
   input: {
     width: '80%',
@@ -121,6 +139,24 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
   },
+  buttonContainer: {
+    flexDirection: 'row', // 버튼을 가로로 배치
+    marginTop: 20,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#967E76',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginHorizontal: 10, // 버튼 사이의 간격
+  },
+  buttonText: {
+    color: 'white',
+    marginLeft: 10, // 아이콘과 텍스트 사이의 간격
+  },
 });
 
 export default UserProfile;
+

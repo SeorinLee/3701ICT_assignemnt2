@@ -1,7 +1,8 @@
 // 3701/assignmnet2/src/screens/SignIn.js
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useDispatch } from 'react-redux';
 import { signIn, loadCartItems, fetchOrders } from '../store/actions';
 import { signIn as signInAPI, getOrders as getOrdersAPI } from '../api/api';
@@ -27,6 +28,8 @@ const SignIn = ({ route, navigation }) => {
     try {
       const result = await signInAPI(email, password);
       if (result.status === 'OK') {
+        await AsyncStorage.setItem('userToken', result.token); // 토큰 저장
+
         const cartItems = await AsyncStorage.getItem(`cart_${email}`);
         if (cartItems) {
           dispatch(loadCartItems(JSON.parse(cartItems)));
@@ -76,8 +79,16 @@ const SignIn = ({ route, navigation }) => {
       <Text>Sign in with your email and password</Text>
       <TextInput placeholder="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
       <TextInput placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
-      <Button title="Sign In" onPress={handleSignIn} />
-      <Button title="Clear" onPress={() => { setEmail(''); setPassword(''); }} />
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+          <Ionicons name="log-in" size={20} color="white" />
+          <Text style={styles.buttonText}>Sign In</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => { setEmail(''); setPassword(''); }}>
+          <Ionicons name="close-circle" size={20} color="white" />
+          <Text style={styles.buttonText}>Clear</Text>
+        </TouchableOpacity>
+      </View>
       <Text onPress={() => navigation.navigate('SignUp')}>Don't have an account? Sign up</Text>
     </View>
   );
@@ -89,6 +100,27 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    backgroundColor: '#EEE3CB',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '80%',
+    marginTop: 20,
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#967E76',
+    paddingHorizontal: 30,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: 'white',
+    marginLeft: 10,
   },
 });
 

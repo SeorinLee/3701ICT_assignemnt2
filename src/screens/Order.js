@@ -1,6 +1,6 @@
 // 3701/assignmnet2/src/screens/Order.js
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert, Image, Button, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert, Image, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchOrders, updateOrderStatus } from '../store/actions';
@@ -126,8 +126,8 @@ const Order = () => {
       <TouchableOpacity onPress={() => handleToggleOrder(item.id, JSON.parse(item.order_items))}>
         <View style={styles.orderSummary}>
           <Text>Order ID: {item.id}</Text>
-          <Text>Number of Items: {item.item_numbers}</Text>
-          <Text>Total Price: ${item.total_price.toFixed(2)}</Text>
+          <Text>Items: {item.item_numbers}</Text>
+          <Text>Price: ${item.total_price.toFixed(2)}</Text>
           <Ionicons
             name={expandedOrders[item.id] ? 'caret-up' : 'caret-down'}
             size={20}
@@ -144,16 +144,22 @@ const Order = () => {
           )}
           {item.is_paid ? (
             !item.is_delivered && (
-              <Button
-                title="Receive"
+              <TouchableOpacity
+                style={styles.receiveButton}
                 onPress={() => handleUpdateOrder(item.id, { isDelivered: true })}
-              />
+              >
+                <Ionicons name="car" size={20} color="white" />
+                <Text style={styles.buttonText}>Receive</Text>
+              </TouchableOpacity>
             )
           ) : (
-            <Button
-              title="Pay"
+            <TouchableOpacity
+              style={styles.payButton}
               onPress={() => handleUpdateOrder(item.id, { isPaid: true })}
-            />
+            >
+              <Ionicons name="wallet" size={20} color="white" />
+              <Text style={styles.buttonText}>Pay</Text>
+            </TouchableOpacity>
           )}
         </View>
       )}
@@ -229,6 +235,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#EEE3CB', // 배경 색상 추가
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -263,6 +270,26 @@ const styles = StyleSheet.create({
   },
   productDetails: {
     flex: 1,
+  },
+  receiveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#987070',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 5,
+  },
+  payButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#C39898',
+    padding: 10,
+    borderRadius: 5,
+    marginVertical: 5,
+  },
+  buttonText: {
+    color: 'white',
+    marginLeft: 5,
   },
 });
 

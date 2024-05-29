@@ -1,8 +1,10 @@
+// 3701/assignmnet2/src/screens/ShoppingCartScreen.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Alert, Button } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 import { incrementQuantity, decrementQuantity, removeFromCart, loadCartItems, fetchOrders } from '../store/actions';
-import { getCartItems as getCartItemsAPI, saveCartItems as saveCartItemsAPI, createOrderAPI, getOrders as getOrdersAPI, fetchProductDetails } from '../api/api';
+import { getCartItems as getCartItemsAPI, saveCartItems as saveCartItemsAPI, createOrderAPI, getOrders as getOrdersAPI, refreshToken as refreshTokenAPI, fetchProductDetails } from '../api/api';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -76,8 +78,17 @@ const ShoppingCartScreen = () => {
 
   const handleCheckout = async () => {
     try {
-      const storedToken = await AsyncStorage.getItem('userToken'); // 로컬 저장소에서 토큰 가져오기
+      let storedToken = await AsyncStorage.getItem('userToken'); // 로컬 저장소에서 토큰 가져오기
       console.log('Token being used for checkout:', storedToken); // 토큰 확인용 로그
+
+      // 토큰 유효성 검증 및 재발급
+      const tokenValidity = await checkTokenValidity(storedToken); // 토큰 유효성 확인 함수
+      if (!tokenValidity) {
+        storedToken = await refreshTokenAPI(); // 토큰 재발급
+        await AsyncStorage.setItem('userToken', storedToken);
+        console.log('New token:', storedToken);
+      }
+
       const response = await createOrderAPI(storedToken, cartItems.map(item => ({
         prodID: item.id,
         price: item.price,
@@ -102,6 +113,13 @@ const ShoppingCartScreen = () => {
       console.error('Checkout Error:', error);
       Alert.alert('Network Error', 'Unable to connect to the server. Please try again later.');
     }
+  };
+
+  const checkTokenValidity = async (token) => {
+    // 여기에 토큰 유효성 검증 로직 추가 (예: 만료 시간 확인)
+    // 유효하지 않으면 false 반환
+    // 유효하면 true 반환
+    return true; // 임시로 항상 true 반환
   };
 
   const renderCartItem = ({ item }) => {
@@ -138,7 +156,10 @@ const ShoppingCartScreen = () => {
             renderItem={renderCartItem}
             keyExtractor={item => item.id.toString()}
           />
-          <Button title="Check Out" onPress={handleCheckout} />
+          <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+            <Ionicons name="wallet" size={20} color="white" />
+            <Text style={styles.buttonText}>Check Out</Text>
+          </TouchableOpacity>
         </>
       ) : (
         <Text style={styles.emptyCart}>Your shopping cart is empty.</Text>
@@ -150,7 +171,8 @@ const ShoppingCartScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20
+    padding: 20,
+    backgroundColor: '#EEE3CB', 
   },
   itemContainer: {
     flexDirection: 'row',
@@ -175,11 +197,12 @@ const styles = StyleSheet.create({
   button: {
     marginHorizontal: 10,
     padding: 10,
-    backgroundColor: '#ddd',
+    backgroundColor: '#AF8F6F',
     borderRadius: 5
   },
   quantity: {
-    fontSize: 16
+    fontSize: 16, 
+    fontWeight: 'bold'
   },
   total: {
     fontSize: 18,
@@ -189,7 +212,23 @@ const styles = StyleSheet.create({
   emptyCart: {
     fontSize: 18,
     fontStyle: 'italic'
-  }
+  },
+  checkoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#967E76',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginTop: 20,
+  },
+  buttonText: {
+    color: 'white',
+    marginLeft: 10,
+  },
 });
 
 export default ShoppingCartScreen;
+
+
